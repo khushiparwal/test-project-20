@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Include jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <!-- Include jQuery UI CSS -->
+    <link rel="stylesheet"
+          href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+    <script src="{% static 'js/checkbox.js' %}"></script>
+    <script src="{% static 'js/datepicker.js' %}"></script>
+</head>
+<body>
+<h3>Hi, Guest</h3>
+<a href="/ORS/Welcome/"><b>Welcome</b></a> |
+<a href="/ORS/User/"><b>Add User</b></a> |
+<a href="/ORS/Role/"><b>Add Role</b></a> |
+<hr>
+</body>
+</html>
