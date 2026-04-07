@@ -2,6 +2,9 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.sessions.models import Session
 from .ctl.RoleCtl import RoleCtl
+from .ctl.UserCtl import UserCtl
+from .ctl.CourseCtl import CourseCtl
+from .ctl.CollegeCtl import CollegeCtl
 
 
 @csrf_exempt

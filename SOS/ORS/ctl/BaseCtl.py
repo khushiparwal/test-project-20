@@ -23,7 +23,13 @@ class BaseCtl(ABC):
         if "GET" == request.method:
             return self.display(request, params)
         elif "POST" == request.method:
-            return self.submit(request,params)
+            self.request_to_form(request.POST)
+            if self.input_validation():
+                return self.display(request, params)
+            else:
+                return self.submit(request, params)
+
+
 
     @abstractmethod
     def display(self,request,params={}):
