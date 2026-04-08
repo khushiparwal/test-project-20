@@ -9,7 +9,7 @@
     <form method="POST">
         {% csrf_token %}
         <div align="center">
-            <h1>Add Course</h1>
+            <h1>Add Subject</h1>
             {% if form.error %}
                 <h3><font color="red">{{ form.message }}</font></h3>
             {% else %}
@@ -28,9 +28,14 @@
                     <td style="position: fixed; color: red;">{{ form.inputError.description }}</td>
                 </tr>
                 <tr>
-                    <th>Duration:</th>
-                    <td><input type="text" name="duration" value="{{ form.duration }}"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.duration }}</td>
+                    <th>Course Id:</th>
+                    <td><input type="number" name="courseId" value="{{ form.courseId }}"></td>
+                    <td style="position: fixed; color: red;">{{ form.inputError.courseId }}</td>
+                </tr>
+                <tr>
+                    <th>Course Name:</th>
+                    <td><input type="text" name="courseName" value="{{ form.courseName }}"></td>
+                    <td style="position: fixed; color: red;">{{ form.inputError.courseName }}</td>
                 </tr>
                 <tr>
                     <th></th>

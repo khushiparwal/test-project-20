@@ -27,7 +27,7 @@ class RoleCtl(BaseCtl):
             inputError['name'] = "Role Name is required"
             self.form['error'] = True
         else:
-            if (DataValidator.isalphacheck(self.form['name'])):
+            if (DataValidator.isalphacehck(self.form['name'])):
                 inputError['name'] = "Role Name contains only letters"
                 self.form['error'] = True
 

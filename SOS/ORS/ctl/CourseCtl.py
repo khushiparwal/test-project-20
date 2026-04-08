@@ -1,5 +1,3 @@
-from multiprocessing.reduction import duplicate
-
 from django.http import HttpResponse
 from .BaseCtl import BaseCtl
 from django.shortcuts import render
@@ -23,14 +21,6 @@ class CourseCtl(BaseCtl):
         obj.duration = self.form['duration']
         return obj
 
-    def model_to_form(self, obj):
-        if obj == None:
-            return
-        self.form['id'] = obj.id
-        self.form['name'] = obj.name
-        self.form['description'] = obj.description
-        self.form['duration'] = obj.duration
-
     def input_validation(self):
         super().input_validation()
         inputError = self.form['inputError']
@@ -39,7 +29,7 @@ class CourseCtl(BaseCtl):
             inputError['name'] = "Course name cannot be null."
             self.form['error'] = True
         else:
-            if (DataValidator.isalphacheck(self.form['name'])):
+            if (DataValidator.isalphacehck(self.form['name'])):
                 inputError['name'] = "Course name contains only letters"
                 self.form['error'] = True
         if (DataValidator.isNull(self.form['description'])):
@@ -51,41 +41,22 @@ class CourseCtl(BaseCtl):
         return self.form['error']
 
     def display(self,request,params={}):
-        if (params['id']>0):
-            course = self.get_service().get(params['id'])
-            self.model_to_form(course)
         res = render(request,self.get_template(),{"form":self.form})
         return res
 
     def submit(self, request, params={}):
-        if params['id']>0:
-            pk = params['id']
-            duplicate = self.get_service().get_model().objects.exclude(id=pk).filter(name=self.form['name'])
-            if duplicate.count() > 0:
-                self.form['error'] = True
-                self.form['message'] = "Course name already exists"
-                res = render(request, self.get_template(),{"form":self.form})
-            else:
-                r = self.form_to_model(Course())
-                self.get_service().save(r)
-                self.form['id'] = r.id
-                self.form['error'] = False
-                self.form['message'] = "Course updated successfully"
-                res = render(request,self.get_template(),{"form":self.form})
-            return res
+        duplicate = self.get_service().get_model().objects.filter(name=self.form['name'])
+        if duplicate.count() > 0:
+            self.form['error'] = True
+            self.form['message'] = "Course name already exists"
+            res = render(request,self.get_template(),{"form":self.form})
         else:
-            duplicate = self.get_service().get_model().objects.filter(name=self.form['name'])
-            if duplicate.count() > 0:
-                self.form['error'] = True
-                self.form['message'] = "Course name already exists"
-                res = render(request,self.get_template(),{"form":self.form})
-            else:
-                course = self.form_to_model(Course())
-                self.get_service().save(course)
-                self.form['error']=False
-                self.form['message'] = "Course added successfully"
-                res = render(request,self.get_template(),{"form":self.form})
-            return res
+            course = self.form_to_model(Course())
+            self.get_service().save(course)
+            self.form['error']=False
+            self.form['message'] = "Course added successfully"
+            res = render(request,self.get_template(),{"form":self.form})
+        return res
 
     def get_template(self):
         return "Course.html"

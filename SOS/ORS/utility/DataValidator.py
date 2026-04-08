@@ -44,7 +44,7 @@ class DataValidator:
             return True
 
     @classmethod
-    def isalphacheck(self,val):
+    def isalphacehck(self,val):
         if re.match("^[a-zA-Z\s]+$",val):
             return False
         else:

@@ -5,7 +5,12 @@ from .ctl.RoleCtl import RoleCtl
 from .ctl.UserCtl import UserCtl
 from .ctl.CourseCtl import CourseCtl
 from .ctl.CollegeCtl import CollegeCtl
-
+from.ctl.FacultyCtl import FacultyCtl
+from.ctl.MarksheetCtl import MarksheetCtl
+from.ctl.StudentCtl import StudentCtl
+from.ctl.SubjectCtl import SubjectCtl
+from.ctl.TimeTableCtl import TimeTableCtl
+from.ctl.WelcomeCtl import WelcomeCtl
 
 @csrf_exempt
 def action(request, page="", operation="", id=0):

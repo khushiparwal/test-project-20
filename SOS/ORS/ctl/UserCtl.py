@@ -7,6 +7,7 @@ from ..models import User
 from ..service.UserService import UserService
 from ..service.RoleService import RoleService
 
+
 class UserCtl(BaseCtl):
     def request_to_form(self, requestForm):
         self.form['id'] = requestForm['id']
@@ -20,14 +21,11 @@ class UserCtl(BaseCtl):
         self.form["gender"] = requestForm["gender"]
         self.form["mobileNumber"] = requestForm["mobileNumber"]
         self.form["roleId"] = requestForm["roleId"]
-        if self.form['roleId'] != '':
-            role = RoleService().get(self.form['roleId'])
-            self.form["roleName"] = role.name
+        self.form['roleName'] = requestForm["roleName"]
 
     def form_to_model(self,obj):
-        role = RoleService.get(self.form['roleId'])
         pk = int(self.form['id'])
-        if pk >0:
+        if pk > 0:
             obj.id = pk
         obj.firstName = self.form["firstName"]
         obj.lastName = self.form["lastName"]
@@ -39,24 +37,8 @@ class UserCtl(BaseCtl):
         obj.gender = self.form["gender"]
         obj.mobileNumber = self.form["mobileNumber"]
         obj.roleId = self.form["roleId"]
-        obj.roleName = role.name
+        obj.roleName = self.form['roleName']
         return obj
-
-    def model_to_form(self, obj):
-            if (obj==None):
-                return
-            self.form["id"] = obj.id
-            self.form["firstName"] = obj.firstName
-            self.form["lastName"] = obj.lastName
-            self.form["loginId"] = obj.loginId
-            self.form["password"] = obj.password
-            self.form["confirmPassword"] = obj.confirmPassword
-            self.form["dob"] = obj.dob.strftime("%Y-%m-%d")
-            self.form["address"] = obj.address
-            self.form["gender"] = obj.gender
-            self.form["mobileNumber"] = obj.mobileNumber
-            self.form["roleId"] = obj.roleId
-            self.form["roleName"] = obj.roleName
 
     def input_validation(self):
         super().input_validation()
@@ -116,48 +98,31 @@ class UserCtl(BaseCtl):
                 self.form['error'] = True
 
         if (DataValidator.isNull(self.form['roleId'])):
-            inputError['roleId'] = "Role Name is required"
+            inputError['roleId'] = "Role Id is required"
+            self.form['error'] = True
+
+        if (DataValidator.isNull(self.form['roleName'])):
+            inputError['roleName'] = "Role Name is required"
             self.form['error'] = True
 
         return self.form['error']
 
-    def preload(self, request, params={}):
-        self.dynamic_preload = RoleService().preload()
-
-    def display(self,request,params={}):
-        if (params['id']>0):
-            user = self.get_service().get(params['id'])
-            self.model_to_form(user)
-        res = render(request, self.get_template(),{'form':self.form,'roleList':self.dynamic_preload})
+    def display(self, request, params={}):
+        res = render(request, self.get_template(), {'form': self.form})
         return res
 
     def submit(self, request, params={}):
-        if (int(self.form['id']) > 0):
-            pk = int(self.form['id'])
-            duplicate = self.get_service().get_model().objects.exclude(id=pk).filter(loginId=self.form['loginId'])
-            if duplicate.count() > 0:
-                self.form['error'] = True
-                self.form['message'] = "Login Id already exist"
-                res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
-            else:
-                user = self.form_to_model(User())
-                self.get_service().save(user)
-                self.form['id'] = user.id
-                self.form['error'] = False
-                self.form['message'] = "User updated successfully"
-                res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
+        duplicate = self.get_service().get_model().objects.filter(loginId=self.form['loginId'])
+        if duplicate.count() > 0:
+            self.form['error'] = True
+            self.form['message'] = "Login Id already exist"
+            res = render(request, self.get_template(), {'form': self.form})
         else:
-            duplicate = self.get_service().get_model().objects.filter(loginId=self.form['loginId'])
-            if duplicate.count() > 0:
-                self.form['error'] = True
-                self.form['message'] = "Login Id already exist"
-                res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
-            else:
-                user = self.form_to_model(User())
-                self.get_service().save(user)
-                self.form['error'] = False
-                self.form['message'] = "User added successfully"
-                res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
+            user = self.form_to_model(User())
+            self.get_service().save(user)
+            self.form['error'] = False
+            self.form['message'] = "User added successfully"
+            res = render(request, self.get_template(), {'form': self.form})
         return res
 
     def get_template(self):
