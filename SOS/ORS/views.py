@@ -2,15 +2,25 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.sessions.models import Session
 from .ctl.RoleCtl import RoleCtl
+from .ctl.RoleListCtl import RoleListCtl
 from .ctl.UserCtl import UserCtl
+from .ctl.UserListCtl import UserListCtl
 from .ctl.CourseCtl import CourseCtl
+from .ctl.CourseListCtl import CourseListCtl
 from .ctl.CollegeCtl import CollegeCtl
-from.ctl.FacultyCtl import FacultyCtl
+from .ctl.CollegeListCtl import CollegeListCtl
+from .ctl.FacultyCtl import FacultyCtl
+from .ctl.FacultyListCtl import FacultyListCtl
 from.ctl.MarksheetCtl import MarksheetCtl
-from.ctl.StudentCtl import StudentCtl
-from.ctl.SubjectCtl import SubjectCtl
-from.ctl.TimeTableCtl import TimeTableCtl
-from.ctl.WelcomeCtl import WelcomeCtl
+from .ctl.MarksheetListCtl import MarksheetListCtl
+from .ctl.StudentCtl import StudentCtl
+from .ctl.StudentListCtl import StudentListCtl
+from .ctl.SubjectCtl import SubjectCtl
+from .ctl.SubjectListCtl import SubjectListCtl
+from .ctl.TimeTableCtl import TimeTableCtl
+from .ctl.TimeTableListCtl import TimeTableListCtl
+from .ctl.WelcomeCtl import WelcomeCtl
+
 
 @csrf_exempt
 def action(request, page="", operation="", id=0):

@@ -7,7 +7,7 @@ class CourseService(BaseService):
     def search(self,params):
         pageNo = (params['pageNo']-1)*self.pageSize
         sql = "select * from sos_course where 1=1 "
-        val = params.get("name",None)
+        val = params.get("name",'')
         if DataValidator.isNotNull(val):
             sql += " and name like '"+val+"%%'"
         sql += " limit %s, %s"

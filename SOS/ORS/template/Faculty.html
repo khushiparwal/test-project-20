@@ -60,34 +60,40 @@
                     <td style="position: fixed; color: red;">{{ form.inputError.dob }}</td>
                 </tr>
                 <tr>
-                    <th>College Id:</th>
-                    <td><input type="number" name="collegeId" value="{{ form.collegeId }}" style="width: 98%;"></td>
+                    <th>College:</th>
+                    <td>
+                        <select name="collegeId" style="width:100%">
+                            <option value="{{ form.collegeId }}">{{ form.collegeName }}</option>
+                            {% for college in collegeList %}
+                                <option value="{{ college.id }}">{{ college.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
                     <td style="position: fixed; color: red;">{{ form.inputError.collegeId }}</td>
                 </tr>
                 <tr>
-                    <th>College Name:</th>
-                    <td><input type="text" name="collegeName" value="{{ form.collegeName }}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.collegeName }}</td>
-                </tr>
-                <tr>
-                    <th>Subject Id:</th>
-                    <td><input type="number" name="subjectId" value="{{ form.subjectId }}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.subjectId }}</td>
-                </tr>
-                <tr>
-                    <th>Subject Name:</th>
-                    <td><input type="text" name="subjectName" value="{{ form.subjectName }}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.subjectName }}</td>
-                </tr>
-                <tr>
-                    <th>Course Id:</th>
-                    <td><input type="number" name="courseId" value="{{ form.courseId }}" style="width: 98%;"></td>
+                    <th>Course:</th>
+                    <td>
+                        <select name="courseId" style="width:100%">
+                            <option value="{{ form.courseId }}">{{ form.courseName }}</option>
+                            {% for course in courseList %}
+                                <option value="{{ course.id }}">{{ course.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
                     <td style="position: fixed; color: red;">{{ form.inputError.courseId }}</td>
                 </tr>
                 <tr>
-                    <th>Course Name:</th>
-                    <td><input type="text" name="courseName" value="{{ form.courseName }}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.courseName }}</td>
+                    <th>Subject:</th>
+                    <td>
+                        <select name="subjectId" style="width:100%">
+                            <option value="{{ form.subjectId }}">{{ form.subjectName }}</option>
+                            {% for subject in subjectList %}
+                                <option value="{{ subject.id }}">{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td style="position: fixed; color: red;">{{ form.inputError.subjectId }}</td>
                 </tr>
                 <tr>
                     <th></th>

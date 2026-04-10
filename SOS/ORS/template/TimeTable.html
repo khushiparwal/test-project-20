@@ -36,24 +36,28 @@
                     <td style="position: fixed; color: red;">{{ form.inputError.examDate }}</td>
                 </tr>
                 <tr>
-                    <th>Subject Id:</th>
-                    <td><input type="number" name="subjectId" value="{{form.subjectId}}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.subjectId }}</td>
-                </tr>
-                <tr>
-                    <th>Subject Name:</th>
-                    <td><input type="text" name="subjectName" value="{{form.subjectName}}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.subjectName }}</td>
-                </tr>
-                <tr>
-                    <th>Course Id:</th>
-                    <td><input type="number" name="courseId" value="{{form.courseId}}" style="width: 98%;"></td>
+                    <th>Course:</th>
+                    <td>
+                        <select name="courseId" style="width:100%">
+                            <option value="{{form.courseId}}">{{ form.courseName }}</option>
+                            {% for course in courseList %}
+                                <option value="{{ course.id }}">{{ course.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
                     <td style="position: fixed; color: red;">{{ form.inputError.courseId }}</td>
                 </tr>
-                <tr>
-                    <th>Course Name:</th>
-                    <td><input type="text" name="courseName" value="{{form.courseName}}" style="width: 98%;"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.courseName }}</td>
+                 <tr>
+                    <th>Subject:</th>
+                    <td>
+                        <select name="subjectId" style="width:100%">
+                            <option value="{{form.subjectId}}">{{ form.subjectName }}</option>
+                            {% for subject in subjectList %}
+                                <option value="{{ subject.id }}">{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td style="position: fixed; color: red;">{{ form.inputError.subjectId }}</td>
                 </tr>
                 <tr>
                     <th>Semester:</th>

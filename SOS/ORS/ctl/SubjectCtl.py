@@ -3,24 +3,31 @@ from ..utility.DataValidator import DataValidator
 from .BaseCtl import BaseCtl
 from ..models import Subject
 from ..service.SubjectService import SubjectService
+from ..service.CourseService import CourseService
 
 class SubjectCtl(BaseCtl):
+
+    def preload(self, request, params={}):
+        self.dynamic_preload = CourseService().preload()
 
     def request_to_form(self, requestForm):
         self.form['id'] = requestForm['id']
         self.form['name'] = requestForm['name']
         self.form['description'] = requestForm['description']
         self.form['courseId'] = requestForm['courseId']
-        self.form["courseName"] = requestForm['courseName']
+        if self.form['courseId'] != '':
+            course = CourseService().get(self.form['courseId'])
+            self.form["courseName"] = course.name
 
     def form_to_model(self, obj):
+        course = CourseService().get(self.form['courseId'])
         pk = int(self.form['id'])
         if (pk > 0):
             obj.id = pk
         obj.name = self.form['name']
         obj.description = self.form['description']
         obj.courseId = self.form['courseId']
-        obj.courseName = self.form['courseName']
+        obj.courseName = course.name
         return obj
 
     def input_validation(self):
@@ -41,10 +48,6 @@ class SubjectCtl(BaseCtl):
 
         if (DataValidator.isNull(self.form['courseId'])):
             inputError['courseId'] = "Course can not be null"
-            self.form['error'] = True
-
-        if (DataValidator.isNull(self.form['courseName'])):
-            inputError['courseName'] = "Course Name can not be null"
             self.form['error'] = True
 
         return self.form['error']

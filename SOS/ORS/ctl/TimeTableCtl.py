@@ -3,29 +3,42 @@ from ..utility.DataValidator import DataValidator
 from .BaseCtl import BaseCtl
 from ..models import TimeTable
 from ..service.TimeTableService import TimeTableService
+from ..service.CourseService import CourseService
+from ..service.SubjectService import SubjectService
 
 class TimeTableCtl(BaseCtl):
+    def preload(self, request, params={}):
+        self.course_List = CourseService().preload()
+        self.subject_List = SubjectService().preload()
 
     def request_to_form(self, requestForm):
         self.form['id'] = requestForm['id']
         self.form['examTime'] = requestForm['examTime']
         self.form['examDate'] = requestForm['examDate']
         self.form['courseId'] = requestForm['courseId']
-        self.form['courseName'] = requestForm['courseName']
         self.form['subjectId'] = requestForm['subjectId']
-        self.form['subjectName'] = requestForm['subjectName']
         self.form['semester'] = requestForm['semester']
 
+        if self.form['courseId'] != '':
+            course = CourseService().get(self.form['courseId'])
+            self.form['courseName'] = course.name
+
+        if self.form['subjectId'] != '':
+            subject = SubjectService().get(self.form['subjectId'])
+            self.form['subjectName'] = subject.name
+
     def form_to_model(self, obj):
+        course = CourseService().get(self.form['courseId'])
+        subject = SubjectService().get(self.form['subjectId'])
         pk = int(self.form['id'])
         if (pk > 0):
             obj.id = pk
         obj.examTime = self.form['examTime']
         obj.examDate = self.form['examDate']
         obj.courseId = self.form['courseId']
-        obj.courseName = self.form['courseName']
+        obj.courseName = course.name
         obj.subjectId = self.form['subjectId']
-        obj.subjectName = self.form['subjectName']
+        obj.subjectName = subject.name
         obj.semester = self.form['semester']
         return obj
 
@@ -50,14 +63,6 @@ class TimeTableCtl(BaseCtl):
             inputError['courseId'] = "Course can not be null"
             self.form['error'] = True
 
-        if (DataValidator.isNull(self.form['courseName'])):
-            inputError['courseName'] = "Course name can not be null"
-            self.form['error'] = True
-
-        if (DataValidator.isNull(self.form['subjectName'])):
-            inputError['subjectName'] = "Subject name can not be null"
-            self.form['error'] = True
-
         if (DataValidator.isNull(self.form['subjectId'])):
             inputError['subjectId'] = "Subject can not be null"
             self.form['error'] = True
@@ -68,7 +73,7 @@ class TimeTableCtl(BaseCtl):
         return self.form['error']
 
     def display(self, request, params={}):
-        res = render(request, self.get_template(), {'form': self.form})
+        res = render(request, self.get_template(), {'form': self.form, 'courseList': self.course_List, 'subjectList': self.subject_List})
         return res
 
     def submit(self, request, params={}):
@@ -81,14 +86,14 @@ class TimeTableCtl(BaseCtl):
             self.form['error'] = True
             self.form['message'] = "Exam Time, Exam Date, Subject name already exists"
             return render(request, self.get_template(), {
-                    'form': self.form})
+                    'form': self.form,'courseList':self.course_List, 'subjectList': self.subject_List})
         else:
             timeTable = self.form_to_model(TimeTable())
             self.get_service().save(timeTable)
             self.form['error'] = False
             self.form['message'] = "Timetable added successfully"
             return render(request, self.get_template(), {
-                    'form': self.form})
+                    'form': self.form, 'courseList': self.course_List, 'subjectList': self.subject_List})
 
     def get_template(self):
         return "TimeTable.html"

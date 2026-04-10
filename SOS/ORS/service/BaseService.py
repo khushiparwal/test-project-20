@@ -26,6 +26,13 @@ class BaseService(ABC):
         except self.get_model().DoesNotExist:
             return None
 
+    def preload(self):
+        try:
+            objs = self.get_model().objects.all()
+            return objs
+        except self.get_model().DoesNotExist:
+            return None
+
     @abstractmethod
     def get_model(self):
         pass

@@ -21,9 +21,12 @@ class UserCtl(BaseCtl):
         self.form["gender"] = requestForm["gender"]
         self.form["mobileNumber"] = requestForm["mobileNumber"]
         self.form["roleId"] = requestForm["roleId"]
-        self.form['roleName'] = requestForm["roleName"]
+        if self.form['roleId'] != '':
+            role = RoleService().get(self.form['roleId'])
+            self.form["roleName"] = role.name
 
     def form_to_model(self,obj):
+        role = RoleService().get(self.form['roleId'])
         pk = int(self.form['id'])
         if pk > 0:
             obj.id = pk
@@ -37,7 +40,7 @@ class UserCtl(BaseCtl):
         obj.gender = self.form["gender"]
         obj.mobileNumber = self.form["mobileNumber"]
         obj.roleId = self.form["roleId"]
-        obj.roleName = self.form['roleName']
+        obj.roleName = role.name
         return obj
 
     def input_validation(self):
@@ -107,8 +110,11 @@ class UserCtl(BaseCtl):
 
         return self.form['error']
 
+    def preload(self, request, params={}):
+        self.dynamic_preload = RoleService().preload()
+
     def display(self, request, params={}):
-        res = render(request, self.get_template(), {'form': self.form})
+        res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
         return res
 
     def submit(self, request, params={}):
@@ -116,13 +122,13 @@ class UserCtl(BaseCtl):
         if duplicate.count() > 0:
             self.form['error'] = True
             self.form['message'] = "Login Id already exist"
-            res = render(request, self.get_template(), {'form': self.form})
+            res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
         else:
             user = self.form_to_model(User())
             self.get_service().save(user)
             self.form['error'] = False
             self.form['message'] = "User added successfully"
-            res = render(request, self.get_template(), {'form': self.form})
+            res = render(request, self.get_template(), {'form': self.form, 'roleList': self.dynamic_preload})
         return res
 
     def get_template(self):

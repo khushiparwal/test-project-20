@@ -44,14 +44,16 @@
                     <td style="position: fixed; color: red;">{{ form.inputError.email }}</td>
                 </tr>
                 <tr>
-                    <th>College Id:</th>
-                    <td><input type="number" name="collegeId" value="{{form.collegeId}}"></td>
+                    <th>College:</th>
+                    <td>
+                        <select name="collegeId" style="width:100%">
+                            <option value="{{form.collegeId}}">{{ form.collegeName }}</option>
+                            {% for college in collegeList %}
+                                <option value="{{ college.id }}">{{ college.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
                     <td style="position: fixed; color: red;">{{ form.inputError.collegeId }}</td>
-                </tr>
-                <tr>
-                    <th>College Name:</th>
-                    <td><input type="text" name="collegeName" value="{{form.collegeName}}"></td>
-                    <td style="position: fixed; color: red;">{{ form.inputError.collegeName }}</td>
                 </tr>
                 <tr>
                     <th></th>

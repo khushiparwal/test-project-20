@@ -26,7 +26,7 @@ class UserService(BaseService):
     def search(self, params):
         pageNo = ((params["pageNo"] - 1) * self.pageSize)
         sql = "select * from sos_user where 1=1"
-        val = params.get("firstName", None)
+        val = params.get("firstName", '')
         if DataValidator.isNotNull(val):
             sql += " and firstName like '" + val + "%%'"
         sql += " limit %s, %s"

@@ -1,3 +1,4 @@
+from ..service.CollegeService import CollegeService
 from .BaseCtl import BaseCtl
 from django.shortcuts import render
 from ..utility.DataValidator import DataValidator
@@ -5,6 +6,9 @@ from ..models import Student
 from ..service.StudentService import StudentService
 
 class StudentCtl(BaseCtl):
+
+    def preload(self, request, params={}):
+        self.dynamic_preload = CollegeService().preload()
 
     def request_to_form(self, requestForm):
         self.form['id'] = requestForm['id']
@@ -14,9 +18,13 @@ class StudentCtl(BaseCtl):
         self.form['mobileNumber'] = requestForm['mobileNumber']
         self.form['email'] = requestForm['email']
         self.form['collegeId'] = requestForm['collegeId']
-        self.form['collegeName'] = requestForm['collegeName']
+
+        if self.form['collegeId'] != '':
+            college = CollegeService().get(self.form['collegeId'])
+            self.form["collegeName"] = college.name
 
     def form_to_model(self, obj):
+        college = CollegeService().get(self.form['collegeId'])
         pk = int(self.form['id'])
         if (pk > 0):
             obj.id = pk
@@ -26,7 +34,7 @@ class StudentCtl(BaseCtl):
         obj.mobileNumber = self.form['mobileNumber']
         obj.email = self.form['email']
         obj.collegeId = self.form['collegeId']
-        obj.collegeName = self.form['collegeName']
+        obj.collegeName = college.name
         return obj
 
     def input_validation(self):
@@ -75,10 +83,6 @@ class StudentCtl(BaseCtl):
 
         if (DataValidator.isNull(self.form['collegeId'])):
             inputError['collegeId'] = "College can not be null"
-            self.form['error'] = True
-
-        if (DataValidator.isNull(self.form['collegeName'])):
-            inputError['collegeName'] = "College Name can not be null"
             self.form['error'] = True
 
         return self.form['error']
