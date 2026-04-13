@@ -9,10 +9,11 @@ class MarksheetService(BaseService):
     def search(self, params):
         pageNo = (params["pageNo"] - 1) * self.pageSize
         sql = "select * from sos_marksheet where 1=1"
-        val = params.get("rollNumber", '')
+        val = params.get("rollNumber", None)
         if DataValidator.isNotNull(val):
             sql += " and rollNumber = '" + val + "'"
         sql += " limit %s, %s"
+        print('sql =>', sql)
         cursor = connection.cursor()
         cursor.execute(sql, [pageNo, self.pageSize])
         result = cursor.fetchall()
