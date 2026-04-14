@@ -13,6 +13,7 @@ from .ctl.FacultyCtl import FacultyCtl
 from .ctl.FacultyListCtl import FacultyListCtl
 from.ctl.MarksheetCtl import MarksheetCtl
 from .ctl.MarksheetListCtl import MarksheetListCtl
+from .ctl.MarksheetMeritListCtl import MarksheetMeritListCtl
 from .ctl.StudentCtl import StudentCtl
 from .ctl.StudentListCtl import StudentListCtl
 from .ctl.SubjectCtl import SubjectCtl

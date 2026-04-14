@@ -27,6 +27,16 @@ class CollegeCtl(BaseCtl):
         obj.phoneNumber = self.form['phoneNumber']
         return obj
 
+    def model_to_form(self, obj):
+        if (obj == None):
+            return
+        self.form['id'] = obj.id
+        self.form['name'] = obj.name
+        self.form['address'] = obj.address
+        self.form['state'] = obj.state
+        self.form['city'] = obj.city
+        self.form['phoneNumber'] = obj.phoneNumber
+
     def input_validation(self):
         super().input_validation()
         inputError = self.form['inputError']
@@ -56,22 +66,41 @@ class CollegeCtl(BaseCtl):
         return self.form['error']
 
     def display(self,request,params={}):
+        if (params['id']>0):
+            college = self.get_service().get(params['id'])
+            self.model_to_form(college)
         res = render(request,self.get_template(),{"form":self.form})
         return res
 
     def submit(self, request, params={}):
-        duplicate = self.get_service().get_model().objects.filter(name=self.form['name'])
-        if duplicate.count() > 0:
-            self.form['error'] = True
-            self.form['message'] = "College name already exists"
-            res = render(request,self.get_template(),{"form":self.form})
+        if (params['id'] > 0):
+            pk = params['id']
+            duplicate = self.get_service().get_model().objects.exclude(id=pk).filter(name=self.form['name'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "College Name already exists"
+                res = render(request, self.get_template(), {"form": self.form})
+            else:
+                college = self.form_to_model(College())
+                self.get_service().save(college)
+                self.form['id'] = college.id
+                self.form['error'] = False
+                self.form['message'] = "College updated successfully"
+                res = render(request, self.get_template(), {'form': self.form})
+            return res
         else:
-            college = self.form_to_model(College())
-            self.get_service().save(college)
-            self.form['error'] = False
-            self.form['message'] = "College saved successfully"
-            res = render(request,self.get_template(),{"form":self.form})
-        return res
+            duplicate = self.get_service().get_model().objects.filter(name=self.form['name'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "College Name already exists"
+                res = render(request, self.get_template(), {'form': self.form})
+            else:
+                college = self.form_to_model(College())
+                self.get_service().save(college)
+                self.form['message'] = False
+                self.form['message'] = "College saved successfully"
+                res = render(request, self.get_template(), {'form': self.form})
+            return res
 
     def get_template(self):
         return "College.html"

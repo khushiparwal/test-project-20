@@ -62,6 +62,24 @@ class FacultyCtl(BaseCtl):
         obj.subjectName = subject.name
         return obj
 
+    def model_to_form(self, obj):
+        if (obj == None):
+            return
+        self.form['id'] = obj.id
+        self.form['firstName'] = obj.firstName
+        self.form['lastName'] = obj.lastName
+        self.form['email'] = obj.email
+        self.form['password'] = obj.password
+        self.form['address'] = obj.password
+        self.form['gender'] = obj.gender
+        self.form['dob'] = obj.dob.strftime("%Y-%m-%d")
+        self.form['collegeId'] = obj.collegeId
+        self.form['courseId'] = obj.courseId
+        self.form['subjectId'] = obj.subjectId
+        self.form['collegeName'] = obj.collegeName
+        self.form['courseName'] = obj.courseName
+        self.form['subjectName'] = obj.subjectName
+
     def input_validation(self):
         super().input_validation()
         inputError = self.form['inputError']
@@ -125,6 +143,10 @@ class FacultyCtl(BaseCtl):
         return self.form['error']
 
     def display(self, request, params={}):
+        if (params['id'] > 0):
+            id = params['id']
+            faculty = self.get_service().get(id)
+            self.model_to_form(faculty)
         res = render(request, self.get_template(), {
             'form': self.form,
             'collegeList': self.college_List,
@@ -134,27 +156,52 @@ class FacultyCtl(BaseCtl):
         return res
 
     def submit(self, request, params={}):
-        duplicate = self.get_service().get_model().objects.filter(email=self.form['email'])
-        if (duplicate.count() > 0):
-            self.form['error'] = True
-            self.form['message'] = "Email already exists"
-            res = render(request, self.get_template(), {
-                'form': self.form,
-                'collegeList': self.college_List,
-                'courseList': self.course_List,
-                'subjectList': self.subject_List
-            })
+        if (params['id'] > 0):
+            pk = params['id']
+            duplicate = self.get_service().get_model().objects.exclude(id=pk).filter(email=self.form['email'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Email already exists"
+                res = render(request, self.get_template(), {
+                    'form': self.form,
+                    'collegeList': self.college_List,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
+            else:
+                faculty = self.form_to_model(Faculty())
+                self.get_service().save(faculty)
+                self.form['id'] = faculty.id
+                self.form['error'] = False
+                self.form['message'] = "Faculty updated successfully"
+                res = render(request, self.get_template(), {
+                    'form': self.form,
+                    'collegeList': self.college_List,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
         else:
-            faculty = self.form_to_model(Faculty())
-            self.get_service().save(faculty)
-            self.form['error'] = False
-            self.form['message'] = "Faculty added successfully"
-            res = render(request, self.get_template(), {
-                  'form': self.form,
-                  'collegeList': self.college_List,
-                  'courseList': self.course_List,
-                  'subjectList': self.subject_List
-            })
+            duplicate = self.get_service().get_model().objects.filter(email=self.form['email'])
+            if (duplicate.count() > 0):
+                self.form['error'] = True
+                self.form['message'] = "Email already exists"
+                res = render(request, self.get_template(), {
+                    'form': self.form,
+                    'collegeList': self.college_List,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
+            else:
+                faculty = self.form_to_model(Faculty())
+                self.get_service().save(faculty)
+                self.form['error'] = False
+                self.form['message'] = "Faculty added successfully"
+                res = render(request, self.get_template(), {
+                    'form': self.form,
+                    'collegeList': self.college_List,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
         return res
 
     def get_template(self):

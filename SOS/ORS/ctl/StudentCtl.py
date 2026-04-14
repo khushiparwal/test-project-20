@@ -5,6 +5,7 @@ from ..utility.DataValidator import DataValidator
 from ..models import Student
 from ..service.StudentService import StudentService
 
+
 class StudentCtl(BaseCtl):
 
     def preload(self, request, params={}):
@@ -36,6 +37,18 @@ class StudentCtl(BaseCtl):
         obj.collegeId = self.form['collegeId']
         obj.collegeName = college.name
         return obj
+
+    def model_to_form(self, obj):
+        if (obj == None):
+            return
+        self.form['id'] = obj.id
+        self.form['firstName'] = obj.firstName
+        self.form['lastName'] = obj.lastName
+        self.form['dob'] = obj.dob.strftime("%Y-%m-%d")
+        self.form['mobileNumber'] = obj.mobileNumber
+        self.form['email'] = obj.email
+        self.form['collegeId'] = obj.collegeId
+        self.form['collegeName'] = obj.collegeName
 
     def input_validation(self):
         super().input_validation()
@@ -88,21 +101,39 @@ class StudentCtl(BaseCtl):
         return self.form['error']
 
     def display(self, request, params={}):
+        if (params['id'] > 0):
+            student = self.get_service().get(params['id'])
+            self.model_to_form(student)
         res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
         return res
 
     def submit(self, request, params={}):
-        duplicate = self.get_service().get_model().objects.filter(email=self.form['email'])
-        if duplicate.count() > 0:
-            self.form['error'] = True
-            self.form['message'] = "Email already exists"
-            res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
+        if (params['id'] > 0):
+            pk = params['id']
+            duplicate = self.get_service().get_model().objects.exclude(id=pk).filter(email=self.form['email'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Email already exists"
+                res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
+            else:
+                student = self.form_to_model(Student())
+                self.get_service().save(student)
+                self.form['id'] = student.id
+                self.form['error'] = False
+                self.form['message'] = "Student updated successfully"
+                res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
         else:
-            student = self.form_to_model(Student())
-            self.get_service().save(student)
-            self.form['error'] = False
-            self.form['message'] = "Student added successfully"
-            res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
+            duplicate = self.get_service().get_model().objects.filter(email=self.form['email'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Email already exists"
+                res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
+            else:
+                student = self.form_to_model(Student())
+                self.get_service().save(student)
+                self.form['error'] = False
+                self.form['message'] = "Student added successfully"
+                res = render(request, self.get_template(), {'form': self.form, 'collegeList': self.dynamic_preload})
         return res
 
     def get_template(self):

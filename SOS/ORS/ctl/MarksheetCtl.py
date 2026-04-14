@@ -25,6 +25,16 @@ class MarksheetCtl(BaseCtl):
         obj.maths = self.form['maths']
         return obj
 
+    def model_to_form(self, obj):
+        if obj == None:
+            return
+        self.form['id'] = obj.id
+        self.form['name'] = obj.name
+        self.form['rollNumber'] = obj.rollNumber
+        self.form['physics'] = obj.physics
+        self.form['chemistry'] = obj.chemistry
+        self.form['maths'] = obj.maths
+
     def input_validation(self):
         super().input_validation()
         inputError = self.form['inputError']
@@ -72,23 +82,43 @@ class MarksheetCtl(BaseCtl):
         return self.form['error']
 
     def display(self, request, params={}):
+        if (params['id'] > 0):
+            marksheet = self.get_service().get(params['id'])
+            self.model_to_form(marksheet)
         res = render(request, self.get_template(), {'form': self.form})
         return res
 
     def submit(self, request, params={}):
-        duplicate = self.get_service().get_model().objects.filter(rollNumber=self.form['rollNumber'])
-        if duplicate.count() > 0:
-            self.form['error'] = True
-            self.form['message'] = "Roll Number already exists"
-            res = render(request, self.get_template(), {'form': self.form})
-            return res
+        if (params['id'] > 0):
+            pk = params['id']
+            duplicate = self.get_service().get_model().objects.exclude(id=pk).filter(rollNumber=self.form['rollNumber'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Roll Number already exists"
+                res = render(request, self.get_template(), {'form': self.form})
+                return res
+            else:
+                marksheet = self.form_to_model(Marksheet())
+                self.get_service().save(marksheet)
+                self.form['id'] = marksheet.id
+                self.form['error'] = False
+                self.form['message'] = "Marksheet updated successfully"
+                res = render(request, self.get_template(), {'form': self.form})
+                return res
         else:
-            marksheet = self.form_to_model(Marksheet())
-            self.get_service().save(marksheet)
-            self.form['error'] = False
-            self.form['message'] = "Marksheet added successfully"
-            res = render(request, self.get_template(), {'form': self.form})
-            return res
+            duplicate = self.get_service().get_model().objects.filter(rollNumber=self.form['rollNumber'])
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Roll Number already exists"
+                res = render(request, self.get_template(), {'form': self.form})
+                return res
+            else:
+                marksheet = self.form_to_model(Marksheet())
+                self.get_service().save(marksheet)
+                self.form['error'] = False
+                self.form['message'] = "Marksheet added successfully"
+                res = render(request, self.get_template(), {'form': self.form})
+                return res
 
     def get_template(self):
         return "Marksheet.html"

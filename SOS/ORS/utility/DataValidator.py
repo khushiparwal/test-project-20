@@ -3,6 +3,7 @@ import re
 
 
 class DataValidator:
+
     @classmethod
     def isNotNull(self, val):
         if (val == None or val == ""):
@@ -19,8 +20,9 @@ class DataValidator:
 
     @classmethod
     def isDate(self, val):
-        if re.match("([0-2]\d{3})-(0\d|1[0-2]\d|3[01])", val):
-            if (datetime.strptime(val, "%Y-%m-%d") <= datetime.strptime(str(date.today()), "%Y-%m-%d")):
+        if re.match("([0-2]\d{3})-(0\d|1[0-2])-([0-2]\d|3[01])", val):
+            if (datetime.strptime(val, "%Y-%m-%d") <= datetime.strptime(str(date.today()),
+                                                                        "%Y-%m-%d")):  # Comparing date with current date
                 return False
             else:
                 return True
@@ -39,14 +41,14 @@ class DataValidator:
 
     @classmethod
     def ischeckroll(self, val):
-        if re.match("^(?=.*[0-3]$)(?=.*[A-Z])", val):
+        if re.match("^(?=.*[0-9]$)(?=.*[A-Z])", val):
             return False
         else:
             return True
 
     @classmethod
     def isalphacehck(self, val):
-        if re.match("^[a-zA-Z\s]+$", val):
+        if re.match("^[a-zA-z\s]+$", val):
             return False
         else:
             return True

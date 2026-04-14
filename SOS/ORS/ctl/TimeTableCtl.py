@@ -2,11 +2,13 @@ from django.shortcuts import render
 from ..utility.DataValidator import DataValidator
 from .BaseCtl import BaseCtl
 from ..models import TimeTable
-from ..service.TimeTableService import TimeTableService
 from ..service.CourseService import CourseService
 from ..service.SubjectService import SubjectService
+from ..service.TimeTableService import TimeTableService
+
 
 class TimeTableCtl(BaseCtl):
+
     def preload(self, request, params={}):
         self.course_List = CourseService().preload()
         self.subject_List = SubjectService().preload()
@@ -21,11 +23,23 @@ class TimeTableCtl(BaseCtl):
 
         if self.form['courseId'] != '':
             course = CourseService().get(self.form['courseId'])
-            self.form['courseName'] = course.name
+            self.form["courseName"] = course.name
 
         if self.form['subjectId'] != '':
             subject = SubjectService().get(self.form['subjectId'])
-            self.form['subjectName'] = subject.name
+            self.form["subjectName"] = subject.name
+
+    def model_to_form(self, obj):
+        if (obj == None):
+            return
+        self.form['id'] = obj.id
+        self.form['examTime'] = obj.examTime
+        self.form['examDate'] = obj.examDate.strftime("%Y-%m-%d")
+        self.form['courseId'] = obj.courseId
+        self.form['courseName'] = obj.courseName
+        self.form['subjectId'] = obj.subjectId
+        self.form['subjectName'] = obj.subjectName
+        self.form['semester'] = obj.semester
 
     def form_to_model(self, obj):
         course = CourseService().get(self.form['courseId'])
@@ -42,6 +56,7 @@ class TimeTableCtl(BaseCtl):
         obj.semester = self.form['semester']
         return obj
 
+    # Validate Form
     def input_validation(self):
         super().input_validation()
         inputError = self.form['inputError']
@@ -73,27 +88,67 @@ class TimeTableCtl(BaseCtl):
         return self.form['error']
 
     def display(self, request, params={}):
-        res = render(request, self.get_template(), {'form': self.form, 'courseList': self.course_List, 'subjectList': self.subject_List})
+        if (params['id'] > 0):
+            r = self.get_service().get(params['id'])
+            self.model_to_form(r)
+        res = render(request, self.get_template(), {
+            'form': self.form,
+            'courseList': self.course_List,
+            'subjectList': self.subject_List
+        })
         return res
 
     def submit(self, request, params={}):
-        duplicate = TimeTable.objects.filter(
-            subjectId=self.form['subjectId'],
-            examTime=self.form['examTime'],
-            examDate=self.form['examDate']
-        )
-        if duplicate.count() > 0:
-            self.form['error'] = True
-            self.form['message'] = "Exam Time, Exam Date, Subject name already exists"
-            return render(request, self.get_template(), {
-                    'form': self.form,'courseList':self.course_List, 'subjectList': self.subject_List})
+        if (params['id'] > 0):
+            pk = params['id']
+            duplicate = TimeTable.objects.exclude(id=pk).filter(
+                subjectId=self.form['subjectId'],
+                examTime=self.form['examTime'],
+                examDate=self.form['examDate']
+            )
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Exam Time, Exam Date, Subject name already exists"
+                return render(request, self.get_template(), {
+                    'form': self.form,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
+            else:
+                timeTable = self.form_to_model(TimeTable())
+                self.get_service().save(timeTable)
+                self.form['id'] = timeTable.id
+                self.form['error'] = False
+                self.form['message'] = "Timetable updated successfully"
+                return render(request, self.get_template(), {
+                    'form': self.form,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
         else:
-            timeTable = self.form_to_model(TimeTable())
-            self.get_service().save(timeTable)
-            self.form['error'] = False
-            self.form['message'] = "Timetable added successfully"
-            return render(request, self.get_template(), {
-                    'form': self.form, 'courseList': self.course_List, 'subjectList': self.subject_List})
+            duplicate = TimeTable.objects.filter(
+                subjectId=self.form['subjectId'],
+                examTime=self.form['examTime'],
+                examDate=self.form['examDate']
+            )
+            if duplicate.count() > 0:
+                self.form['error'] = True
+                self.form['message'] = "Exam Time, Exam Date, Subject name already exists"
+                return render(request, self.get_template(), {
+                    'form': self.form,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
+            else:
+                timeTable = self.form_to_model(TimeTable())
+                self.get_service().save(timeTable)
+                self.form['error'] = False
+                self.form['message'] = "Timetable added successfully"
+                return render(request, self.get_template(), {
+                    'form': self.form,
+                    'courseList': self.course_List,
+                    'subjectList': self.subject_List
+                })
 
     def get_template(self):
         return "TimeTable.html"
