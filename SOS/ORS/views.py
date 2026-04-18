@@ -1,6 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.sessions.models import Session
+from .ctl.ChangePasswordCtl import ChangePasswordCtl
+from .ctl.RegistrationCtl import RegistrationCtl
+from .ctl.LoginCtl import LoginCtl
 from .ctl.RoleCtl import RoleCtl
 from .ctl.RoleListCtl import RoleListCtl
 from .ctl.UserCtl import UserCtl
@@ -21,10 +25,17 @@ from .ctl.SubjectListCtl import SubjectListCtl
 from .ctl.TimeTableCtl import TimeTableCtl
 from .ctl.TimeTableListCtl import TimeTableListCtl
 from .ctl.WelcomeCtl import WelcomeCtl
-
+from .ctl.ForgetPasswordCtl import ForgetPasswordCtl
 
 @csrf_exempt
 def action(request, page="", operation="", id=0):
+    if request.path == "/favicon.ico/":
+        from django.http import HttpResponse
+        return HttpResponse(status=204)
+    if page == "Logout":
+        Session.objects.all().delete()
+        request.session['user'] = None
+        page = "Login"
     ctlName = page + "Ctl()"
     ctlObj = eval(ctlName)
     res = ctlObj.execute(request, {"operation": operation, "id": id})
