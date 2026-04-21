@@ -3,6 +3,8 @@ from django.shortcuts import render
 from ..utility.DataValidator import DataValidator
 from ..models import User
 from ..service.ChangePasswordService import ChangePasswordService
+from ..service.EmailService import EmailService
+from ..service.EmailMessege import EmailMessege
 from ..service.UserService import UserService
 
 
@@ -59,13 +61,12 @@ class ChangePasswordCtl(BaseCtl):
         user = q[0]
         if q.count() > 0:
             if self.form['newPassword'] == self.form['confirmPassword']:
-                # emailMessege = EmailMessege()
-                # emailMessege.to = [user.loginId]
-                # emailMessege.subject = "Change Password"
-                # mailResponse = EmailService.send(emailMessege, 'changePassword', user)
+                emailMessege = EmailMessege()
+                emailMessege.to = [user.loginId]
+                emailMessege.subject = "Change Password"
+                mailResponse = EmailService.send(emailMessege, 'changePassword', user)
 
-                # if mailResponse == 1:
-                if True:
+                if mailResponse == 1:
                     user.password = self.form['newPassword']
                     user.confirmPassword = self.form['confirmPassword']
 

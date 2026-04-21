@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .BaseCtl import BaseCtl
-
+from ..service.EmailMessege import EmailMessege
+from ..service.EmailService import EmailService
 from ..utility.DataValidator import DataValidator
 from ..models import User
 from ..service.UserService import UserService
@@ -19,8 +20,8 @@ class RegistrationCtl(BaseCtl):
         self.form['address'] = requestForm['address']
         self.form['gender'] = requestForm['gender']
         self.form['mobileNumber'] = requestForm['mobileNumber']
-        self.form['roleId'] = 3
-        self.form['roleName'] = 'Student'
+        self.form['roleId'] = 2
+        self.form['roleName'] = 'student'
 
     def form_to_model(self, obj):
         pk = int(self.form['id'])
@@ -114,12 +115,26 @@ class RegistrationCtl(BaseCtl):
             self.form['message'] = "Login Id already exist"
             res = render(request, self.get_template(), {'form': self.form})
         else:
-            user = self.form_to_model(User())
-            self.get_service().save(user)
-            self.form['error'] = False
-            self.form['message'] = "User added successfully"
-            res = render(request, self.get_template(), {'form': self.form})
+            emailMessege = EmailMessege()
+            emailMessege.to = [self.form['loginId']]
+            emailMessege.subject = "ORS Registration Successful"
 
+            e = {}
+            e['loginId'] = self.form['loginId']
+            e['password'] = self.form['password']
+
+            mailResponse = EmailService.send(emailMessege, 'signUp', e)
+
+            if mailResponse == 1:
+                r = self.form_to_model(User())
+                self.get_service().save(r)
+                self.form['error'] = False
+                self.form['message'] = "User Registration successfully..!!"
+                res = render(request, self.get_template(), {'form': self.form})
+            else:
+                self.form['error'] = True
+                self.form['message'] = "Please Check Your Internet Connection"
+                res = render(request, self.get_template(), {'form': self.form})
         return res
 
     def get_template(self):

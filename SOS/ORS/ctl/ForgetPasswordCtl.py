@@ -2,6 +2,8 @@ from .BaseCtl import BaseCtl
 from django.shortcuts import render, redirect
 from ..utility.DataValidator import DataValidator
 from ..service.ForgetPasswordService import ForgetPasswordService
+from ..service.EmailService import EmailService
+from ..service.EmailMessege import EmailMessege
 from ..models import User
 
 
@@ -31,14 +33,13 @@ class ForgetPasswordCtl(BaseCtl):
         try:
             user = self.get_service().find_by_login(self.form)
 
-            # emailMessege = EmailMessege()
-            # emailMessege.to = [user.loginId]
-            # emailMessege.subject = "Forget Password"
+            emailMessege = EmailMessege()
+            emailMessege.to = [user.loginId]
+            emailMessege.subject = "Forget Password"
 
-            # mail_response = EmailService.send(emailMessege, "forgetPassword", user)
+            mail_response = EmailService.send(emailMessege, "forgetPassword", user)
 
-            # if mail_response == 1:
-            if True:
+            if mail_response == 1:
                 self.form['error'] = False
                 self.form['message'] = "Your password has been sent successfully"
                 request.session['user'] = user.firstName
